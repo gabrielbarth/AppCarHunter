@@ -5,6 +5,6 @@ data class Car(
     val name: String,
     val year: String,
     val imageUrl: String,
-    val license: String,
+    val licence: String,
     val place: Place
 )

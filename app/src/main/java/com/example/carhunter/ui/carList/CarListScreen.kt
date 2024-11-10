@@ -75,7 +75,7 @@ fun CarItem(car: Car) {
             Column {
                 Text(text = car.name, style = MaterialTheme.typography.bodyLarge)
                 Text(text = "Year: ${car.year}", color = Color.Gray)
-                Text(text = "License: ${car.license}", color = Color.Gray)
+                Text(text = "License: ${car.licence}", color = Color.Gray)
             }
         }
     }

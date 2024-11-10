@@ -7,7 +7,7 @@ import java.util.Date
 @Entity(tableName = "car_location_table")
 data class Place(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
-    var latitude: Double = 0.toDouble(),
-    var longitude: Double = 0.toDouble(),
+    var lat: Double = 0.toDouble(),
+    var long: Double = 0.toDouble(),
     var createdAt: Date = Date()
 )
