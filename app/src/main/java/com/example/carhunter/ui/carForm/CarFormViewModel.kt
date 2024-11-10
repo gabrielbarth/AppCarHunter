@@ -1,10 +1,12 @@
 package com.example.carhunter.ui.carForm
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.carhunter.data.model.Car
 import com.example.carhunter.data.model.Place
 import com.example.carhunter.data.repository.CarRepository
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,46 +16,72 @@ class CarFormViewModel(private val repository: CarRepository = CarRepository()) 
     private val _uiState = MutableStateFlow(CarFormUiState(car = null))
     val uiState: StateFlow<CarFormUiState> = _uiState
 
-//    private val _carState = MutableStateFlow(Car())
-//    val carState: StateFlow<Car> = _carState
-////
-//    private val _imageUri = MutableStateFlow<Uri?>(null)
-//    val imageUri: StateFlow<Uri?> = _imageUri
+    private val _imageUri = MutableStateFlow<Uri?>(null)
+    val imageUri: StateFlow<Uri?> = _imageUri
 
-    fun updateCar(name: String, year: String, license: String) {
-        _uiState.value.car = _uiState.value.car?.copy(
+    private fun uploadImageToFirebase(imageUri: Uri) {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val fileName = "images/${UUID.randomUUID()}.jpg"
+        val imagesRef = storageRef.child(fileName)
+
+        imagesRef.putFile(imageUri)
+            .addOnSuccessListener {
+                imagesRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    saveCar(imageUrl = downloadUri.toString())
+                }
+            }
+            .addOnFailureListener { exception ->
+                _uiState.value = _uiState.value.copy(hasError = true)
+                println("Error on upload image to firebase: $exception")
+            }
+    }
+
+    fun setImageUri(uri: Uri) {
+        _imageUri.value = uri
+    }
+
+    fun updateCameraPermissionStatus(isGranted: Boolean) {
+        _uiState.value = _uiState.value.copy(hasCameraPermission = isGranted)
+    }
+
+    private fun validateForm(): Boolean {
+
+        if (_imageUri.value.toString().isEmpty()) {
+            println("sem URI!")
+            return false
+        }
+
+        // to-do validations
+
+        return true
+    }
+
+    fun validateAndSaveCard(name: String, year: String, license: String) {
+
+        if (!validateForm()) {
+            _uiState.value = _uiState.value.copy(hasError = true)
+        }
+
+        val car = Car(
             id = UUID.randomUUID().toString(),
             name = name,
             year = year,
-            licence = license
+            licence = license,
+            place = Place(lat = -10.0, long = -20.0), // to-do
+            imageUrl = ""
         )
+
+        _uiState.value.car = car
+        uploadImageToFirebase(_imageUri.value!!)
     }
 
-//    fun setImageUri(uri: Uri) {
-//        _imageUri.value = uri
-//        print("URI = $uri")
-//        _uiState.value.car = _uiState.value.car?.copy(imageUrl = uri)
-//        //_carState.value = _carState.value.copy(imageUrl = uri.toString())
-//    }
-
-    fun saveCar() {
-        println("save carr!")
+    private fun saveCar(imageUrl: String) {
         viewModelScope.launch {
-            val car = Car(
-                id = "1",
-                name = "car name",
-                licence = "abc-1234",
-                imageUrl = "https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg",
-                year = "2020/2021",
-                place = Place(
-                    lat = -23.666,
-                    long = -46.6333
-                )
-            )
+            val car = _uiState.value.car?.copy(imageUrl = imageUrl)
             try {
-                repository.saveCar(car)
+                repository.saveCar(car!!)
             } catch (e: Exception) {
-                println("Result ERROR $e")
+                println("Error on save car: $e")
                 _uiState.value = _uiState.value.copy(hasError = true)
             }
         }
