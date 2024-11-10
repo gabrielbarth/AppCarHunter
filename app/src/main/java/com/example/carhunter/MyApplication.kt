@@ -33,7 +33,7 @@ private object Routes {
 fun MyApplication(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screens.CAR_FORM
+    startDestination: String = Screens.LOGIN
 ) {
     NavHost(
         modifier = modifier,
@@ -44,12 +44,23 @@ fun MyApplication(
             LoginScreen(
                 onSignInSuccess = {
                     println("NavHost -> onSignInSuccess")
-                    navController.navigate(Screens.CAR_LIST)
+                    navController.navigate(Screens.CAR_LIST) {
+                        popUpTo(Screens.LOGIN) { inclusive = true }
+                    }
                 },
             )
         }
         composable(route = Routes.CAR_LIST) {
-            CarListScreen()
+            CarListScreen(
+                onGoToCarForm = {
+                    println("NavHost -> onGoToCarForm")
+                    navController.navigate(Screens.CAR_FORM)
+                },
+                onLogout = {
+                    println("NavHost -> onLogout")
+                    navController.navigate(Screens.LOGIN)
+                }
+            )
         }
         composable(route = Routes.CAR_FORM) {
             CarFormScreen()
