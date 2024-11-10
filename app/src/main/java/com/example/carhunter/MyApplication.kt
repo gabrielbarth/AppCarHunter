@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.carhunter.ui.carForm.CarFormScreen
 import com.example.carhunter.ui.carList.CarListScreen
 import com.example.carhunter.ui.login.LoginScreen
 
@@ -32,7 +33,7 @@ private object Routes {
 fun MyApplication(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screens.LOGIN
+    startDestination: String = Screens.CAR_FORM
 ) {
     NavHost(
         modifier = modifier,
@@ -49,6 +50,9 @@ fun MyApplication(
         }
         composable(route = Routes.CAR_LIST) {
             CarListScreen()
+        }
+        composable(route = Routes.CAR_FORM) {
+            CarFormScreen()
         }
 
     }
