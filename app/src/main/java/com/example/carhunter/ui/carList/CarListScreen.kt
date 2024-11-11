@@ -36,6 +36,7 @@ import com.example.carhunter.ui.composables.AppTopBar
 fun CarListScreen(
     viewModel: CarListViewModel = viewModel(),
     onGoToCarForm: () -> Unit,
+    onGoToCarFormEdit: (Car) -> Unit,
     onLogout: () -> Unit,
 ) {
     val uiState = viewModel.uiState.collectAsState().value
@@ -63,10 +64,9 @@ fun CarListScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-
-                ) {
+            ) {
                 items(uiState.cars) { car ->
-                    CarItem(car = car)
+                    CarItem(car = car, onPress = { onGoToCarFormEdit(car) })
                 }
             }
             Button(
@@ -83,12 +83,14 @@ fun CarListScreen(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CarItem(car: Car) {
+fun CarItem(car: Car, onPress: (Car) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
+        onClick = { onPress(car) }
     ) {
         Row(
             modifier = Modifier

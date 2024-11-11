@@ -3,9 +3,11 @@ package com.example.carhunter
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.carhunter.ui.carForm.CarFormScreen
 import com.example.carhunter.ui.carList.CarListScreen
 import com.example.carhunter.ui.login.LoginScreen
@@ -33,7 +35,7 @@ private object Routes {
 fun MyApplication(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screens.LOGIN
+    startDestination: String = Screens.CAR_LIST
 ) {
     NavHost(
         modifier = modifier,
@@ -59,11 +61,30 @@ fun MyApplication(
                 onLogout = {
                     println("NavHost -> onLogout")
                     navController.navigate(Screens.LOGIN)
+                },
+                onGoToCarFormEdit = { car ->
+                    println("NavHost -> onGoToCarFormEdit")
+                    navController.navigate("${Screens.CAR_FORM}?${Arguments.CAR_ID}=${car.id}")
                 }
             )
         }
-        composable(route = Routes.CAR_FORM) {
-            CarFormScreen()
+        composable(
+            route = Routes.CAR_FORM,
+            arguments = listOf(
+                navArgument(name = Arguments.CAR_ID) {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )) {
+            CarFormScreen(
+                onSave = {
+                    println("NavHost -> onSave")
+                    navController.popBackStack(
+                        route = Screens.CAR_LIST,
+                        inclusive = false
+                    )
+                }
+            )
         }
 
     }

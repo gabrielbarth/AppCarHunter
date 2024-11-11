@@ -33,8 +33,11 @@ import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CarFormScreen(viewModel: CarFormViewModel = viewModel()) {
-    val uiState = viewModel.uiState.collectAsState().value
+fun CarFormScreen(
+    viewModel: CarFormViewModel = viewModel(),
+    onSave: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
 
     var name by remember {
         mutableStateOf(
@@ -46,11 +49,18 @@ fun CarFormScreen(viewModel: CarFormViewModel = viewModel()) {
             TextFieldValue(uiState.car?.year ?: "")
         )
     }
-    var license by remember {
+    var licence by remember {
         mutableStateOf(
             TextFieldValue(uiState.car?.licence ?: "")
         )
     }
+
+    LaunchedEffect(uiState.car) {
+        name = TextFieldValue(uiState.car?.name ?: "")
+        year = TextFieldValue(uiState.car?.year ?: "")
+        licence = TextFieldValue(uiState.car?.licence ?: "")
+    }
+
     val context = LocalContext.current
 
     val imageUri by viewModel.imageUri.collectAsState()
@@ -64,7 +74,6 @@ fun CarFormScreen(viewModel: CarFormViewModel = viewModel()) {
         onResult = { success ->
             if (success) {
                 println("sucess $uri")
-
                 viewModel.setImageUri(uri)
             }
         }
@@ -89,6 +98,12 @@ fun CarFormScreen(viewModel: CarFormViewModel = viewModel()) {
         }
     }
 
+    // on save successfully
+    LaunchedEffect(viewModel.uiState.value.hasSuccessfullySaved) {
+        if (viewModel.uiState.value.hasSuccessfullySaved) {
+            onSave()
+        }
+    }
 
     Column(modifier = Modifier.padding(16.dp)) {
         OutlinedTextField(
@@ -104,22 +119,32 @@ fun CarFormScreen(viewModel: CarFormViewModel = viewModel()) {
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
-            value = license,
-            onValueChange = { license = it },
+            value = licence,
+            onValueChange = { licence = it },
             label = { Text("Licença") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        imageUri?.let { uri ->
+
+        if(imageUri != null) {
             Image(
-                painter = rememberImagePainter(data = uri),
+                painter = rememberImagePainter(data = imageUri),
+                contentDescription = "Car Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
+        } else if(uiState.car?.imageUrl?.isNotEmpty() == true) {
+            Image(
+                painter = rememberImagePainter(data = uiState.car?.imageUrl),
                 contentDescription = "Car Image",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
             )
         }
+
 
         Spacer(modifier = Modifier.height(16.dp))
         Button(
@@ -138,9 +163,10 @@ fun CarFormScreen(viewModel: CarFormViewModel = viewModel()) {
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                viewModel.validateAndSaveCard(name.text, year.text, license.text)
+                viewModel.validateAndSaveCard(name.text, year.text, licence.text)
             }) {
             Text("Salvar")
         }
     }
+
 }

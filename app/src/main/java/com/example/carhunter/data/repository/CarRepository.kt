@@ -11,4 +11,12 @@ class CarRepository {
     suspend fun saveCar(car: Car): Car {
         return apiService.saveCar(car)
     }
+
+    suspend fun getCar(carId: String): Car {
+        return apiService.getCar(carId)
+    }
+
+    suspend fun updateCar(carId: String, car: Car): Car {
+        return apiService.updateCar(id = carId, car = car)
+    }
 }

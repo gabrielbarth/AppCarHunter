@@ -6,5 +6,6 @@ data class CarFormUiState(
     val isLoading: Boolean = false,
     val hasError: Boolean = false,
     val hasCameraPermission: Boolean = false,
-    var car: Car? = null
+    val hasSuccessfullySaved: Boolean = false,
+    var car: Car? = null,
 )
