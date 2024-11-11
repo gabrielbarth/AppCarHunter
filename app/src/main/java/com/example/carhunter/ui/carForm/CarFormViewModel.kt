@@ -154,4 +154,19 @@ class CarFormViewModel(
             }
         }
     }
+
+    fun deleteCar() {
+        _uiState.value = _uiState.value.copy(isLoading = true)
+        viewModelScope.launch {
+            try {
+                if (carId != null) {
+                    repository.deleteCar(carId)
+                }
+                _uiState.value = _uiState.value.copy(isLoading = false, hasSuccessfullySaved = true)
+            } catch (e: Exception) {
+                println("Error on delete car: $e")
+                _uiState.value = _uiState.value.copy(hasError = true)
+            }
+        }
+    }
 }

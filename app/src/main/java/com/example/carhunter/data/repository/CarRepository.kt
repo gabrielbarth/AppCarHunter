@@ -19,4 +19,8 @@ class CarRepository {
     suspend fun updateCar(carId: String, car: Car): Car {
         return apiService.updateCar(id = carId, car = car)
     }
+
+    suspend fun deleteCar(carId: String) {
+        return apiService.deleteCar(id = carId)
+    }
 }

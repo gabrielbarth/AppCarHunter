@@ -99,7 +99,7 @@ fun CarFormScreen(
     }
 
     // on save successfully
-    LaunchedEffect(viewModel.uiState.value.hasSuccessfullySaved) {
+    LaunchedEffect(viewModel.uiState.value?.hasSuccessfullySaved) {
         if (viewModel.uiState.value.hasSuccessfullySaved) {
             onSave()
         }
@@ -127,7 +127,7 @@ fun CarFormScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if(imageUri != null) {
+        if (imageUri != null) {
             Image(
                 painter = rememberImagePainter(data = imageUri),
                 contentDescription = "Car Image",
@@ -135,7 +135,7 @@ fun CarFormScreen(
                     .fillMaxWidth()
                     .height(200.dp)
             )
-        } else if(uiState.car?.imageUrl?.isNotEmpty() == true) {
+        } else if (uiState.car?.imageUrl?.isNotEmpty() == true) {
             Image(
                 painter = rememberImagePainter(data = uiState.car?.imageUrl),
                 contentDescription = "Car Image",
@@ -166,6 +166,19 @@ fun CarFormScreen(
                 viewModel.validateAndSaveCard(name.text, year.text, licence.text)
             }) {
             Text("Salvar")
+        }
+
+        if (uiState.car?.id?.isNotEmpty() == true) {
+            uiState.car?.id.let {
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        viewModel.deleteCar()
+                    }) {
+                    Text("Deletar")
+                }
+            }
         }
     }
 
